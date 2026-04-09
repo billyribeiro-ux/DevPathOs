@@ -1,5 +1,8 @@
 import { mdsvex } from 'mdsvex';
-import adapter from '@sveltejs/adapter-static';
+import adapterNode from '@sveltejs/adapter-node';
+import adapterStatic from '@sveltejs/adapter-static';
+
+const useStatic = process.env.ADAPTER === 'static';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -8,9 +11,9 @@ const config = {
 			filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 	},
 	kit: {
-		adapter: adapter({
-			fallback: 'index.html'
-		}),
+		adapter: useStatic
+			? adapterStatic({ fallback: 'index.html' })
+			: adapterNode({ out: 'build' }),
 		alias: {
 			$components: 'src/lib/components',
 			$ui: 'src/lib/components/ui'

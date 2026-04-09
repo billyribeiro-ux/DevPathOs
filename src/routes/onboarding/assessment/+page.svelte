@@ -1,15 +1,14 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
-  import { userState } from '$lib/state/user.svelte';
-  import { type Role, type ExperienceLevel, ROLE_LABELS } from '$lib/types/user';
+  import { enhance } from '$app/forms';
+  import { type ExperienceLevel, ROLE_LABELS, type Role } from '$lib/types/user';
   import { ArrowLeft, Plant, TreeEvergreen, Mountains } from 'phosphor-svelte';
 
-  const role = $derived(($page.url.searchParams.get('role') ?? 'frontend') as Role);
-  const name = $derived(decodeURIComponent($page.url.searchParams.get('name') ?? ''));
-  const goals = $derived(
-    decodeURIComponent($page.url.searchParams.get('goals') ?? '').split(',').filter(Boolean)
-  );
+  let { data } = $props();
+
+  const role = $derived(data.role as Role);
+  const name = $derived(data.name);
+  const goals = $derived(data.goals);
 
   let saving = $state(false);
 
@@ -33,13 +32,6 @@
       icon: Mountains
     }
   ];
-
-  async function selectLevel(level: ExperienceLevel) {
-    if (saving) return;
-    saving = true;
-    await userState.createProfile({ name, role, goals, experienceLevel: level });
-    goto('/');
-  }
 </script>
 
 <div class="min-h-screen bg-background flex flex-col items-center justify-center p-6">
@@ -64,19 +56,37 @@
     <div class="space-y-4">
       {#each levels as level}
         {@const Icon = level.icon}
-        <button
-          onclick={() => selectLevel(level.value)}
-          disabled={saving}
-          class="flex w-full items-start gap-4 rounded-xl border border-border bg-card p-6 text-left transition-all hover:border-primary hover:shadow-lg hover:shadow-primary/5 disabled:opacity-50"
+        <form
+          method="POST"
+          use:enhance={() => {
+            saving = true;
+            return async ({ update }) => {
+              await update();
+              saving = false;
+            };
+          }}
         >
-          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <Icon size={24} />
-          </div>
-          <div>
-            <h3 class="font-semibold text-foreground">{level.label}</h3>
-            <p class="text-sm text-muted-foreground mt-1">{level.description}</p>
-          </div>
-        </button>
+          <input type="hidden" name="role" value={role} />
+          <input type="hidden" name="name" value={name} />
+          {#each goals as goal}
+            <input type="hidden" name="goals" value={goal} />
+          {/each}
+          <input type="hidden" name="experienceLevel" value={level.value} />
+
+          <button
+            type="submit"
+            disabled={saving}
+            class="flex w-full items-start gap-4 rounded-xl border border-border bg-card p-6 text-left transition-all hover:border-primary hover:shadow-lg hover:shadow-primary/5 disabled:opacity-50"
+          >
+            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Icon size={24} />
+            </div>
+            <div>
+              <h3 class="font-semibold text-foreground">{level.label}</h3>
+              <p class="text-sm text-muted-foreground mt-1">{level.description}</p>
+            </div>
+          </button>
+        </form>
       {/each}
     </div>
 

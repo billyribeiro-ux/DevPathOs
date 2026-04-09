@@ -1,7 +1,11 @@
 <script lang="ts">
-  import { userState } from '$lib/state/user.svelte';
   import { ROLE_LABELS } from '$lib/types/user';
   import { Path, Book, Brain, Bug, Lightning, CalendarCheck, ArrowRight } from 'phosphor-svelte';
+  import { page } from '$app/stores';
+
+  let { data } = $props();
+
+  const user = $derived($page.data.user);
 
   const greeting = $derived(() => {
     const hour = new Date().getHours();
@@ -14,11 +18,11 @@
 <div class="space-y-8">
   <div>
     <h1 class="text-3xl font-bold text-foreground">
-      {greeting()}, {userState.profile?.name ?? 'Developer'}
+      {greeting()}, {user?.name ?? 'Developer'}
     </h1>
     <p class="text-muted-foreground mt-1">
-      {#if userState.profile}
-        Your path: <span class="font-medium text-foreground">{ROLE_LABELS[userState.profile.role]}</span>
+      {#if user}
+        Your path: <span class="font-medium text-foreground">{ROLE_LABELS[user.role]}</span>
       {/if}
     </p>
   </div>
@@ -107,19 +111,19 @@
     <h2 class="text-lg font-semibold text-foreground mb-4">Quick Stats</h2>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div class="text-center">
-        <p class="text-3xl font-bold text-primary">0</p>
+        <p class="text-3xl font-bold text-primary">{data.stats.conceptsLearned}</p>
         <p class="text-sm text-muted-foreground">Concepts learned</p>
       </div>
       <div class="text-center">
-        <p class="text-3xl font-bold text-primary">0</p>
+        <p class="text-3xl font-bold text-primary">{data.stats.notesCreated}</p>
         <p class="text-sm text-muted-foreground">Notes created</p>
       </div>
       <div class="text-center">
-        <p class="text-3xl font-bold text-primary">0</p>
+        <p class="text-3xl font-bold text-primary">{data.stats.projectsBuilt}</p>
         <p class="text-sm text-muted-foreground">Projects built</p>
       </div>
       <div class="text-center">
-        <p class="text-3xl font-bold text-primary">0</p>
+        <p class="text-3xl font-bold text-primary">{data.stats.streakDays}</p>
         <p class="text-sm text-muted-foreground">Day streak</p>
       </div>
     </div>

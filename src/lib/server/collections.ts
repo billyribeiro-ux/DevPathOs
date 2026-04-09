@@ -1,0 +1,26 @@
+import { JsonStore } from './db';
+import type { UserProfile } from '$lib/types/user';
+import type { RoadmapState, ConceptProgress } from '$lib/types/roadmap';
+import type { LearningSession } from '$lib/types/learning';
+import type { Note, NoteLink, Flashcard, Snippet } from '$lib/types/brain';
+import type { Project, ProjectEvent } from '$lib/types/project';
+import type { Mistake, MistakePattern } from '$lib/types/mistake';
+import type { ChatSession, ChatMessage } from '$lib/types/mentor';
+import type { WeeklyReview, StudyLog } from '$lib/types/review';
+
+export const users = new JsonStore<UserProfile>('users.json');
+export const roadmapStates = new JsonStore<RoadmapState>('roadmap-states.json');
+export const conceptProgress = new JsonStore<ConceptProgress>('concept-progress.json');
+export const learningSessions = new JsonStore<LearningSession>('learning-sessions.json');
+export const notes = new JsonStore<Note>('notes.json');
+export const noteLinks = new JsonStore<NoteLink>('note-links.json');
+export const flashcards = new JsonStore<Flashcard>('flashcards.json');
+export const snippets = new JsonStore<Snippet>('snippets.json');
+export const projects = new JsonStore<Project>('projects.json');
+export const projectEvents = new JsonStore<ProjectEvent>('project-events.json');
+export const mistakes = new JsonStore<Mistake>('mistakes.json');
+export const mistakePatterns = new JsonStore<MistakePattern>('mistake-patterns.json');
+export const chatSessions = new JsonStore<ChatSession>('chat-sessions.json');
+export const chatMessages = new JsonStore<ChatMessage>('chat-messages.json');
+export const weeklyReviews = new JsonStore<WeeklyReview>('weekly-reviews.json');
+export const studyLogs = new JsonStore<StudyLog>('study-logs.json');
