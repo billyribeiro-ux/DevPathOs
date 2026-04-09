@@ -2,6 +2,7 @@
 	import './layout.css';
 	import AppShell from '$lib/components/layout/AppShell.svelte';
 	import CommandPalette from '$lib/components/layout/CommandPalette.svelte';
+	import Toast from '$lib/components/layout/Toast.svelte';
 	import { themeState } from '$lib/state/theme.svelte';
 	import { appState } from '$lib/state/app.svelte';
 	import { page } from '$app/stores';
@@ -24,6 +25,7 @@
 
 <svelte:window onkeydown={handleKeydown} />
 
+<Toast />
 <CommandPalette />
 
 {#if isOnboardingRoute}

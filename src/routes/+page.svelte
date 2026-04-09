@@ -7,7 +7,7 @@
 
   const user = $derived($page.data.user);
 
-  const greeting = $derived(() => {
+  const greeting = $derived.by(() => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
     if (hour < 18) return 'Good afternoon';
@@ -18,7 +18,7 @@
 <div class="space-y-8">
   <div>
     <h1 class="text-3xl font-bold text-foreground">
-      {greeting()}, {user?.name ?? 'Developer'}
+      {greeting}, {user?.name ?? 'Developer'}
     </h1>
     <p class="text-muted-foreground mt-1">
       {#if user}

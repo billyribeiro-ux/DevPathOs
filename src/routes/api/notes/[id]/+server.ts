@@ -2,21 +2,30 @@ import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { notes } from '$lib/server/collections';
 
-export const GET: RequestHandler = async ({ params }) => {
-  const note = await notes.findById(params.id);
-  if (!note) error(404, 'Note not found');
-  return json(note);
+export const GET: RequestHandler = async ({ params, locals }) => {
+	if (!locals.user) error(401, 'Unauthorized');
+	const note = await notes.findById(params.id);
+	if (!note || note.userId !== locals.user.id) error(404, 'Note not found');
+	return json(note);
 };
 
-export const PUT: RequestHandler = async ({ params, request }) => {
-  const data = await request.json();
-  const updated = await notes.update(params.id, { ...data, updatedAt: new Date() });
-  if (!updated) error(404, 'Note not found');
-  return json(updated);
+export const PUT: RequestHandler = async ({ params, request, locals }) => {
+	if (!locals.user) error(401, 'Unauthorized');
+	const note = await notes.findById(params.id);
+	if (!note || note.userId !== locals.user.id) error(404, 'Note not found');
+
+	const data = await request.json().catch(() => null);
+	if (!data) error(400, 'Invalid JSON');
+
+	const updated = await notes.update(params.id, { ...data, updatedAt: new Date() });
+	return json(updated);
 };
 
-export const DELETE: RequestHandler = async ({ params }) => {
-  const deleted = await notes.delete(params.id);
-  if (!deleted) error(404, 'Note not found');
-  return new Response(null, { status: 204 });
+export const DELETE: RequestHandler = async ({ params, locals }) => {
+	if (!locals.user) error(401, 'Unauthorized');
+	const note = await notes.findById(params.id);
+	if (!note || note.userId !== locals.user.id) error(404, 'Note not found');
+
+	await notes.delete(params.id);
+	return new Response(null, { status: 204 });
 };

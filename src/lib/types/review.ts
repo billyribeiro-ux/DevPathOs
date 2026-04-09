@@ -16,6 +16,7 @@ export interface WeeklyReview {
 
 export interface StudyLog {
   id: string;
+  userId: string;
   date: string;
   conceptSlug?: string;
   activity: 'learn' | 'try' | 'build' | 'explain' | 'reuse' | 'flashcard' | 'note' | 'project';

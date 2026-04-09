@@ -2,6 +2,7 @@ export type MistakeCategory = 'syntax' | 'logic' | 'type-error' | 'async' | 'sta
 
 export interface Mistake {
   id: string;
+  userId: string;
   projectId?: string;
   conceptSlug?: string;
   category: MistakeCategory;

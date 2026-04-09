@@ -2,6 +2,7 @@ export type MentorMode = 'coach' | 'teacher' | 'debugger' | 'interviewer' | 'ref
 
 export interface ChatSession {
   id: string;
+  userId: string;
   mode: MentorMode;
   conceptSlug?: string;
   createdAt: Date;

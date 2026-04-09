@@ -3,26 +3,22 @@ import { notes, projects, conceptProgress, studyLogs } from '$lib/server/collect
 import { calculateStreak } from '$lib/services/streak';
 
 export const load: PageServerLoad = async ({ locals }) => {
-  if (!locals.user) return { stats: { conceptsLearned: 0, notesCreated: 0, projectsBuilt: 0, streakDays: 0 } };
+	if (!locals.user) return { stats: { conceptsLearned: 0, notesCreated: 0, projectsBuilt: 0, streakDays: 0 } };
 
-  const [allProgress, allNotes, allProjects, allLogs] = await Promise.all([
-    conceptProgress.readAll(),
-    notes.readAll(),
-    projects.readAll(),
-    studyLogs.readAll()
-  ]);
+	const uid = locals.user.id;
+	const [allProgress, allNotes, allProjects, allLogs] = await Promise.all([
+		conceptProgress.readAll(),
+		notes.findBy(n => n.userId === uid),
+		projects.findBy(p => p.userId === uid),
+		studyLogs.findBy(l => l.userId === uid)
+	]);
 
-  const conceptsLearned = allProgress.filter((c) => c.status === 'learned' || c.status === 'mastered').length;
-  const notesCreated = allNotes.length;
-  const projectsBuilt = allProjects.filter((p) => p.status === 'completed').length;
-  const streakDays = calculateStreak(allLogs);
+	const conceptsLearned = allProgress.filter((c) => c.status === 'learned' || c.status === 'mastered').length;
+	const notesCreated = allNotes.length;
+	const projectsBuilt = allProjects.filter((p) => p.status === 'completed').length;
+	const streakDays = calculateStreak(allLogs);
 
-  return {
-    stats: {
-      conceptsLearned,
-      notesCreated,
-      projectsBuilt,
-      streakDays
-    }
-  };
+	return {
+		stats: { conceptsLearned, notesCreated, projectsBuilt, streakDays }
+	};
 };

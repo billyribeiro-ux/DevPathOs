@@ -69,6 +69,17 @@
 
   const progress = $derived(data.progress ?? []);
 
+  const readinessPercent = $derived.by(() => {
+    const allSlugs = relevanceData.flatMap(s => s.concepts);
+    const learned = allSlugs.filter(slug => {
+      const p = progress.find((pr: { conceptSlug: string }) => pr.conceptSlug === slug);
+      return p && (p.status === 'learned' || p.status === 'mastered');
+    }).length;
+    return allSlugs.length > 0 ? Math.round((learned / allSlugs.length) * 100) : 0;
+  });
+
+  const circumference = 2 * Math.PI * 45;
+
   function getSkillProgress(conceptSlugs: string[]) {
     const total = conceptSlugs.length;
     const learned = conceptSlugs.filter(slug => {
@@ -97,12 +108,20 @@
       <div class="relative flex h-24 w-24 shrink-0 items-center justify-center">
         <svg class="h-24 w-24 -rotate-90" viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="8" class="text-muted" />
-          <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="8" class="text-primary" stroke-dasharray="{2 * Math.PI * 45}" stroke-dashoffset="{2 * Math.PI * 45 * (1 - 0)}" stroke-linecap="round" />
+          <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="8" class="text-primary" stroke-dasharray={circumference} stroke-dashoffset={circumference * (1 - readinessPercent / 100)} stroke-linecap="round" />
         </svg>
-        <span class="absolute text-xl font-bold text-foreground">0%</span>
+        <span class="absolute text-xl font-bold text-foreground">{readinessPercent}%</span>
       </div>
       <div>
-        <p class="text-sm text-muted-foreground">Complete learning tracks to increase your score. Focus on <strong class="text-foreground">essential</strong> skills first.</p>
+        <p class="text-sm text-muted-foreground">
+          {#if readinessPercent === 0}
+            Start learning to build your readiness score. Focus on <strong class="text-foreground">essential</strong> skills first.
+          {:else if readinessPercent < 50}
+            Making progress! Focus on essential skills to accelerate your score.
+          {:else}
+            Strong foundation! Keep pushing toward mastery for senior-level readiness.
+          {/if}
+        </p>
       </div>
     </div>
   </div>

@@ -7,6 +7,9 @@
   const reviews = data.reviews as WeeklyReview[];
   const week = data.currentWeek;
 
+  const dailyMinutes = $derived(week.dailyMinutes ?? [0, 0, 0, 0, 0, 0, 0]);
+  const maxMinutes = $derived(Math.max(...dailyMinutes, 1));
+
   const stats = [
     { label: 'Study Time', value: `${week.totalStudyMinutes}m`, icon: Clock, color: 'text-blue-500 bg-blue-500/10' },
     { label: 'Concepts Touched', value: week.conceptsTouched, icon: Brain, color: 'text-amber-500 bg-amber-500/10' },
@@ -51,12 +54,14 @@
   <div class="rounded-xl border border-border bg-card p-6">
     <h2 class="text-lg font-semibold text-foreground mb-4">Study Consistency</h2>
     <div class="flex items-end gap-1 h-24">
-      {#each ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as day, i}
-        {@const height = Math.random() * 80 + 10}
+      {#each ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as day, i}
+        {@const mins = dailyMinutes[i] ?? 0}
+        {@const height = Math.max(4, (mins / maxMinutes) * 100)}
         <div class="flex-1 flex flex-col items-center gap-1">
           <div
-            class="w-full rounded-t bg-primary/60 transition-all hover:bg-primary"
+            class="w-full rounded-t transition-all hover:bg-primary {mins > 0 ? 'bg-primary/60' : 'bg-muted/40'}"
             style="height: {height}%"
+            title="{mins}m studied"
           ></div>
           <span class="text-xs text-muted-foreground">{day}</span>
         </div>

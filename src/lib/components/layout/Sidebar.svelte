@@ -52,7 +52,8 @@
         <li>
           <a
             href={item.href}
-            class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors {isActive(item.href, $page.url.pathname) ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'}"
+            aria-current={isActive(item.href, $page.url.pathname) ? 'page' : undefined}
+            class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary {isActive(item.href, $page.url.pathname) ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'}"
           >
             <item.icon size={20} />
             {item.label}
@@ -68,7 +69,8 @@
         <li>
           <a
             href={item.href}
-            class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors {isActive(item.href, $page.url.pathname) ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'}"
+            aria-current={isActive(item.href, $page.url.pathname) ? 'page' : undefined}
+            class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary {isActive(item.href, $page.url.pathname) ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'}"
           >
             <item.icon size={20} />
             {item.label}

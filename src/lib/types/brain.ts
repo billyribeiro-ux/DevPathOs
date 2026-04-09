@@ -1,5 +1,6 @@
 export interface Note {
   id: string;
+  userId: string;
   title: string;
   content: string;
   tags: string[];
@@ -18,6 +19,7 @@ export interface NoteLink {
 
 export interface Flashcard {
   id: string;
+  userId: string;
   front: string;
   back: string;
   noteId?: string;
@@ -36,6 +38,7 @@ export interface Flashcard {
 
 export interface Snippet {
   id: string;
+  userId: string;
   title: string;
   code: string;
   language: string;

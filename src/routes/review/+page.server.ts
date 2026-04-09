@@ -1,16 +1,18 @@
 import type { PageServerLoad } from './$types';
 import { weeklyReviews, studyLogs, conceptProgress, mistakes, flashcards } from '$lib/server/collections';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ locals }) => {
+	if (!locals.user) return { reviews: [], currentWeek: { totalStudyMinutes: 0, conceptsTouched: 0, mistakeCount: 0, flashcardsTotal: 0, flashcardsReviewed: 0, conceptsLearned: 0, dailyMinutes: [] } };
+
+	const uid = locals.user.id;
 	const [reviews, logs, progress, allMistakes, allCards] = await Promise.all([
 		weeklyReviews.readAll(),
-		studyLogs.readAll(),
+		studyLogs.findBy(l => l.userId === uid),
 		conceptProgress.readAll(),
-		mistakes.readAll(),
-		flashcards.readAll()
+		mistakes.findBy(m => m.userId === uid),
+		flashcards.findBy(c => c.userId === uid)
 	]);
 
-	// Compute current week stats
 	const now = new Date();
 	const weekStart = new Date(now);
 	weekStart.setDate(now.getDate() - now.getDay());
@@ -21,17 +23,23 @@ export const load: PageServerLoad = async () => {
 	const uniqueConcepts = [...new Set(thisWeekLogs.map(l => l.conceptSlug).filter(Boolean))];
 	const thisWeekMistakes = allMistakes.filter(m => new Date(m.createdAt) >= weekStart);
 
-	const currentWeek = {
-		totalStudyMinutes: totalMinutes,
-		conceptsTouched: uniqueConcepts.length,
-		mistakeCount: thisWeekMistakes.length,
-		flashcardsTotal: allCards.length,
-		flashcardsReviewed: allCards.filter(c => c.reps > 0).length,
-		conceptsLearned: progress.filter(p => p.status === 'learned' || p.status === 'mastered').length
-	};
+	// Compute daily study minutes for each day of the week
+	const dailyMinutes: number[] = [0, 0, 0, 0, 0, 0, 0];
+	for (const log of thisWeekLogs) {
+		const day = new Date(log.timestamp).getDay();
+		dailyMinutes[day] += log.durationMinutes;
+	}
 
 	return {
 		reviews: reviews.sort((a, b) => new Date(b.weekStart).getTime() - new Date(a.weekStart).getTime()),
-		currentWeek
+		currentWeek: {
+			totalStudyMinutes: totalMinutes,
+			conceptsTouched: uniqueConcepts.length,
+			mistakeCount: thisWeekMistakes.length,
+			flashcardsTotal: allCards.length,
+			flashcardsReviewed: allCards.filter(c => c.reps > 0).length,
+			conceptsLearned: progress.filter(p => p.status === 'learned' || p.status === 'mastered').length,
+			dailyMinutes
+		}
 	};
 };
