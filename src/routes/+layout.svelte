@@ -1,6 +1,5 @@
 <script lang="ts">
 	import './layout.css';
-	import favicon from '$lib/assets/favicon.svg';
 	import AppShell from '$lib/components/layout/AppShell.svelte';
 	import { themeState } from '$lib/state/theme.svelte';
 	import { page } from '$app/stores';
@@ -13,8 +12,6 @@
 		themeState.init();
 	});
 </script>
-
-<svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
 {#if isOnboardingRoute}
 	{@render children()}

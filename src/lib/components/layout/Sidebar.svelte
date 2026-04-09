@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import { appState } from '$lib/state/app.svelte';
+  import brandIcon from '$lib/assets/icon.svg';
   import {
     House,
     Path,
@@ -41,9 +42,7 @@
   class="fixed left-0 top-0 z-40 flex h-full w-64 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-transform duration-200 {appState.sidebarOpen ? 'translate-x-0' : '-translate-x-full'}"
 >
   <div class="flex h-14 items-center gap-2 border-b border-sidebar-border px-4">
-    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm">
-      D
-    </div>
+    <img src={brandIcon} alt="DevPath OS" class="h-8 w-8 rounded-lg" />
     <span class="text-lg font-semibold">DevPath OS</span>
   </div>
 
