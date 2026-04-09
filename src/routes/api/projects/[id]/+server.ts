@@ -17,7 +17,18 @@ export const PUT: RequestHandler = async ({ params, request, locals }) => {
 	const data = await request.json().catch(() => null);
 	if (!data) error(400, 'Invalid JSON');
 
-	const updated = await projects.update(params.id, data);
+	// Only allow specific fields to be updated
+	const allowed: Record<string, unknown> = {};
+	if (data.name !== undefined) allowed.name = data.name;
+	if (data.description !== undefined) allowed.description = data.description;
+	if (data.status !== undefined) {
+		const validStatuses = ['planning', 'active', 'completed', 'abandoned'];
+		if (!validStatuses.includes(data.status)) error(400, 'Invalid status');
+		allowed.status = data.status;
+	}
+	if (data.completedAt !== undefined) allowed.completedAt = data.completedAt;
+
+	const updated = await projects.update(params.id, allowed);
 	return json(updated);
 };
 

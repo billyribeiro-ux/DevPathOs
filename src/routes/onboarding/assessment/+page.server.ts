@@ -1,8 +1,9 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { assessmentSchema } from '$lib/schemas/onboarding';
-import { users } from '$lib/server/collections';
+import { users, roadmapStates } from '$lib/server/collections';
 import type { Actions, PageServerLoad } from './$types';
 import type { UserPreferences } from '$lib/types/user';
+import { getConceptsForTrack } from '$lib/content/tracks';
 
 export const load: PageServerLoad = async ({ url }) => {
 	const role = url.searchParams.get('role') ?? 'frontend';
@@ -52,6 +53,19 @@ export const actions: Actions = {
 		};
 
 		await users.create(profile);
+
+		// Initialize roadmap state for the new user
+		const trackSlug = 'frontend';
+		const concepts = getConceptsForTrack(trackSlug);
+		const firstConcepts = concepts.filter(c => c.prerequisites.length === 0).map(c => c.slug);
+
+		await roadmapStates.create({
+			id: crypto.randomUUID(),
+			userId: profile.id,
+			trackSlug,
+			unlockedConcepts: firstConcepts,
+			currentFocus: firstConcepts[0] ?? null
+		});
 
 		cookies.set('devpath_user_id', profile.id, {
 			path: '/',

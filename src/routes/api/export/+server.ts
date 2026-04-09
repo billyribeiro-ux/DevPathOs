@@ -1,6 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { notes, flashcards, snippets, projects, mistakes, studyLogs, conceptProgress, chatSessions, chatMessages } from '$lib/server/collections';
+import { notes, flashcards, snippets, projects, mistakes, studyLogs, conceptProgress, chatSessions, chatMessages, learningSessions, roadmapStates, weeklyReviews } from '$lib/server/collections';
 
 export const GET: RequestHandler = async ({ locals }) => {
 	if (!locals.user) error(401, 'Unauthorized');
@@ -8,7 +8,8 @@ export const GET: RequestHandler = async ({ locals }) => {
 
 	const [
 		userNotes, userCards, userSnippets, userProjects,
-		userMistakes, userLogs, progress, sessions
+		userMistakes, userLogs, userProgress, sessions,
+		userSessions, userRoadmap, userReviews
 	] = await Promise.all([
 		notes.findBy(n => n.userId === uid),
 		flashcards.findBy(c => c.userId === uid),
@@ -16,13 +17,16 @@ export const GET: RequestHandler = async ({ locals }) => {
 		projects.findBy(p => p.userId === uid),
 		mistakes.findBy(m => m.userId === uid),
 		studyLogs.findBy(l => l.userId === uid),
-		conceptProgress.readAll(),
-		chatSessions.findBy(s => s.userId === uid)
+		conceptProgress.findBy(p => p.userId === uid),
+		chatSessions.findBy(s => s.userId === uid),
+		learningSessions.findBy(s => s.userId === uid),
+		roadmapStates.findBy(s => s.userId === uid),
+		weeklyReviews.readAll()
 	]);
 
 	const sessionIds = new Set(sessions.map(s => s.id));
-	const msgs = await chatMessages.readAll();
-	const userMessages = msgs.filter(m => sessionIds.has(m.sessionId));
+	const allMsgs = await chatMessages.readAll();
+	const userMessages = allMsgs.filter(m => sessionIds.has(m.sessionId));
 
 	const exportData = {
 		exportedAt: new Date().toISOString(),
@@ -35,9 +39,12 @@ export const GET: RequestHandler = async ({ locals }) => {
 			projects: userProjects,
 			mistakes: userMistakes,
 			studyLogs: userLogs,
-			conceptProgress: progress,
+			conceptProgress: userProgress,
+			learningSessions: userSessions,
+			roadmapStates: userRoadmap,
 			chatSessions: sessions,
-			chatMessages: userMessages
+			chatMessages: userMessages,
+			weeklyReviews: userReviews
 		}
 	};
 

@@ -4,6 +4,7 @@
 	import CommandPalette from '$lib/components/layout/CommandPalette.svelte';
 	import Toast from '$lib/components/layout/Toast.svelte';
 	import { themeState } from '$lib/state/theme.svelte';
+	import { userState } from '$lib/state/user.svelte';
 	import { appState } from '$lib/state/app.svelte';
 	import { page } from '$app/stores';
 
@@ -13,6 +14,10 @@
 
 	$effect(() => {
 		themeState.init();
+	});
+
+	$effect(() => {
+		userState.set(data.user ?? null);
 	});
 
 	function handleKeydown(e: KeyboardEvent) {

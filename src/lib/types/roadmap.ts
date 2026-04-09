@@ -25,6 +25,7 @@ export interface ConceptMeta {
 
 export interface ConceptProgress {
   id: string;
+  userId: string;
   trackSlug: string;
   conceptSlug: string;
   status: ConceptStatus;

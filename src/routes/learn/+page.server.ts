@@ -5,13 +5,14 @@ import { getConceptsForTrack } from '$lib/content/tracks';
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) return { concepts: [], sessions: [], recentLogs: [] };
 
+	const uid = locals.user.id;
 	const trackSlug = 'frontend';
 	const concepts = getConceptsForTrack(trackSlug);
 
 	const [sessions, progress, logs] = await Promise.all([
-		learningSessions.readAll(),
-		conceptProgress.findBy(p => p.trackSlug === trackSlug),
-		studyLogs.readAll()
+		learningSessions.findBy(s => s.userId === uid),
+		conceptProgress.findBy(p => p.trackSlug === trackSlug && p.userId === uid),
+		studyLogs.findBy(l => l.userId === uid)
 	]);
 
 	const recentLogs = logs

@@ -7,7 +7,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	const uid = locals.user.id;
 	const [allProgress, allNotes, allProjects, allLogs] = await Promise.all([
-		conceptProgress.readAll(),
+		conceptProgress.findBy(p => p.userId === uid),
 		notes.findBy(n => n.userId === uid),
 		projects.findBy(p => p.userId === uid),
 		studyLogs.findBy(l => l.userId === uid)

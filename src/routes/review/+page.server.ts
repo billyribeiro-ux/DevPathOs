@@ -8,7 +8,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const [reviews, logs, progress, allMistakes, allCards] = await Promise.all([
 		weeklyReviews.readAll(),
 		studyLogs.findBy(l => l.userId === uid),
-		conceptProgress.readAll(),
+		conceptProgress.findBy(p => p.userId === uid),
 		mistakes.findBy(m => m.userId === uid),
 		flashcards.findBy(c => c.userId === uid)
 	]);
@@ -23,7 +23,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const uniqueConcepts = [...new Set(thisWeekLogs.map(l => l.conceptSlug).filter(Boolean))];
 	const thisWeekMistakes = allMistakes.filter(m => new Date(m.createdAt) >= weekStart);
 
-	// Compute daily study minutes for each day of the week
 	const dailyMinutes: number[] = [0, 0, 0, 0, 0, 0, 0];
 	for (const log of thisWeekLogs) {
 		const day = new Date(log.timestamp).getDay();
