@@ -6,8 +6,10 @@
 
   let { data } = $props();
 
-  const concept = data.concept as ConceptMeta;
-  let progress = $state(data.progress as ConceptProgress | null);
+  const concept = $derived(data.concept as ConceptMeta);
+  let progress = $state<ConceptProgress | null>(null);
+
+  $effect(() => { progress = data.progress as ConceptProgress | null; });
   let studyTimer = $state(0);
   let timerRunning = $state(false);
   let timerInterval = $state<ReturnType<typeof setInterval> | null>(null);

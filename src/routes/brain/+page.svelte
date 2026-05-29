@@ -26,7 +26,7 @@
   }
 
   // Notes state
-  let notesList = $state<Note[]>(data.notes);
+  let notesList = $state<Note[]>([]);
   let editingNote = $state<Note | null>(null);
   let showNoteForm = $state(false);
   let noteTitle = $state('');
@@ -34,8 +34,7 @@
   let noteTags = $state('');
   let savingNote = $state(false);
 
-  // Flashcards state
-  let cardsList = $state<Flashcard[]>(data.flashcards);
+  let cardsList = $state<Flashcard[]>([]);
   let showCardForm = $state(false);
   let cardFront = $state('');
   let cardBack = $state('');
@@ -45,8 +44,7 @@
   let currentCardIndex = $state(0);
   let showAnswer = $state(false);
 
-  // Snippets state
-  let snippetsList = $state<Snippet[]>(data.snippets);
+  let snippetsList = $state<Snippet[]>([]);
   let showSnippetForm = $state(false);
   let snippetTitle = $state('');
   let snippetCode = $state('');
@@ -54,6 +52,10 @@
   let snippetTags = $state('');
   let savingSnippet = $state(false);
   let copiedId = $state<string | null>(null);
+
+  $effect(() => { notesList = data.notes; });
+  $effect(() => { cardsList = data.flashcards; });
+  $effect(() => { snippetsList = data.snippets; });
 
   const filteredNotes = $derived(
     notesList.filter(n =>
@@ -184,11 +186,11 @@
     setTimeout(() => { copiedId = null; }, 2000);
   }
 
-  const tabs = [
+  const tabs = $derived([
     { id: 'notes' as const, label: 'Notes', icon: NotePencil, count: notesList.length },
     { id: 'flashcards' as const, label: 'Flashcards', icon: Lightning, count: cardsList.length },
     { id: 'snippets' as const, label: 'Snippets', icon: Code, count: snippetsList.length }
-  ];
+  ]);
   const languages = ['javascript', 'typescript', 'svelte', 'html', 'css', 'python', 'rust', 'go', 'bash', 'sql', 'json', 'other'];
 </script>
 

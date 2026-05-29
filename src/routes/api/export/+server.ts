@@ -21,12 +21,11 @@ export const GET: RequestHandler = async ({ locals }) => {
 		chatSessions.findBy(s => s.userId === uid),
 		learningSessions.findBy(s => s.userId === uid),
 		roadmapStates.findBy(s => s.userId === uid),
-		weeklyReviews.readAll()
+		weeklyReviews.findBy(r => (r as { userId?: string }).userId === uid)
 	]);
 
 	const sessionIds = new Set(sessions.map(s => s.id));
-	const allMsgs = await chatMessages.readAll();
-	const userMessages = allMsgs.filter(m => sessionIds.has(m.sessionId));
+	const userMessages = await chatMessages.findBy(m => sessionIds.has(m.sessionId));
 
 	const exportData = {
 		exportedAt: new Date().toISOString(),

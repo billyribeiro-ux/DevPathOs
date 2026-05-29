@@ -5,7 +5,8 @@
   import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
 
   let { data } = $props();
-  let mistakesList = $state<Mistake[]>(data.mistakes);
+  let mistakesList = $state<Mistake[]>([]);
+  $effect(() => { mistakesList = data.mistakes; });
   let showForm = $state(false);
   let saving = $state(false);
   let activeView = $state<'log' | 'patterns'>('log');
@@ -82,14 +83,14 @@
   {#if showForm}
     <div class="rounded-xl border border-border bg-card p-6 space-y-4">
       <div class="flex items-center justify-between"><h3 class="font-semibold text-foreground">Log a Mistake</h3><button onclick={resetForm} class="text-muted-foreground hover:text-foreground"><X size={20} /></button></div>
-      <div>
-        <label class="block text-xs font-medium text-muted-foreground mb-1.5">Category</label>
+      <fieldset>
+        <legend class="block text-xs font-medium text-muted-foreground mb-1.5">Category</legend>
         <div class="flex flex-wrap gap-2">
           {#each categories as cat}
             <button onclick={() => { formCategory = cat.value; }} class="rounded-lg px-3 py-1.5 text-xs font-medium transition-colors {formCategory === cat.value ? cat.color + ' ring-2 ring-primary/30' : 'bg-muted text-muted-foreground'}">{cat.label}</button>
           {/each}
         </div>
-      </div>
+      </fieldset>
       <textarea bind:value={formDescription} placeholder="What happened?" rows={3} class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"></textarea>
       <input bind:value={formError} placeholder="Error message (optional)" class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground font-mono focus:border-primary focus:outline-none" />
       <textarea bind:value={formResolution} placeholder="How did you fix it? (optional)" rows={2} class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"></textarea>

@@ -6,7 +6,8 @@
   import Confetti from '$lib/components/ui/Confetti.svelte';
 
   let { data } = $props();
-  let projectsList = $state<Project[]>(data.projects);
+  let projectsList = $state<Project[]>([]);
+  $effect(() => { projectsList = data.projects; });
   let showForm = $state(false);
   let editingProject = $state<Project | null>(null);
   let saving = $state(false);

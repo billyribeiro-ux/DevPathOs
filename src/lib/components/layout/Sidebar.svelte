@@ -48,7 +48,7 @@
 
   <nav class="flex-1 overflow-y-auto px-3 py-4">
     <ul class="space-y-1">
-      {#each navItems as item}
+      {#each navItems as item (item.href)}
         <li>
           <a
             href={item.href}
@@ -65,7 +65,7 @@
 
   <div class="border-t border-sidebar-border px-3 py-4">
     <ul class="space-y-1">
-      {#each bottomItems as item}
+      {#each bottomItems as item (item.href)}
         <li>
           <a
             href={item.href}

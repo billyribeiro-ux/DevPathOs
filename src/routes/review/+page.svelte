@@ -4,19 +4,19 @@
 
   let { data } = $props();
 
-  const reviews = data.reviews as WeeklyReview[];
-  const week = data.currentWeek;
+  const reviews = $derived(data.reviews as WeeklyReview[]);
+  const week = $derived(data.currentWeek);
 
   const dailyMinutes = $derived(week.dailyMinutes ?? [0, 0, 0, 0, 0, 0, 0]);
   const maxMinutes = $derived(Math.max(...dailyMinutes, 1));
 
-  const stats = [
+  const stats = $derived([
     { label: 'Study Time', value: `${week.totalStudyMinutes}m`, icon: Clock, color: 'text-blue-500 bg-blue-500/10' },
     { label: 'Concepts Touched', value: week.conceptsTouched, icon: Brain, color: 'text-amber-500 bg-amber-500/10' },
     { label: 'Concepts Learned', value: week.conceptsLearned, icon: TrendUp, color: 'text-green-500 bg-green-500/10' },
     { label: 'Mistakes Logged', value: week.mistakeCount, icon: Bug, color: 'text-red-500 bg-red-500/10' },
     { label: 'Flashcards', value: `${week.flashcardsReviewed}/${week.flashcardsTotal}`, icon: Lightning, color: 'text-violet-500 bg-violet-500/10' }
-  ];
+  ]);
 </script>
 
 <div class="space-y-6">

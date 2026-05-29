@@ -7,7 +7,8 @@
 
   let { data } = $props();
 
-  let sessions = $state<ChatSession[]>(data.sessions);
+  let sessions = $state<ChatSession[]>([]);
+  $effect(() => { sessions = data.sessions; });
   let activeSessionId = $state<string | null>(null);
   let messages = $state<ChatMessage[]>([]);
   let input = $state('');

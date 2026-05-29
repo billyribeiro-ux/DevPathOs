@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ROLE_LABELS } from '$lib/types/user';
+  import { ROLE_LABELS, type Role } from '$lib/types/user';
   import { Path, Book, Brain, Bug, Lightning, CalendarCheck, ArrowRight } from 'phosphor-svelte';
   import { page } from '$app/stores';
 
@@ -13,6 +13,8 @@
     if (hour < 18) return 'Good afternoon';
     return 'Good evening';
   });
+
+  const roleLabel = $derived(user ? ROLE_LABELS[user.role as Role] : '');
 </script>
 
 <div class="space-y-8">
@@ -22,7 +24,7 @@
     </h1>
     <p class="text-muted-foreground mt-1">
       {#if user}
-        Your path: <span class="font-medium text-foreground">{ROLE_LABELS[user.role]}</span>
+        Your path: <span class="font-medium text-foreground">{roleLabel}</span>
       {/if}
     </p>
   </div>

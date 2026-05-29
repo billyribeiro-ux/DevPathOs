@@ -5,6 +5,7 @@ import type { StudyLog } from '$lib/types/review';
 function makeLog(date: string): StudyLog {
 	return {
 		id: crypto.randomUUID(),
+		userId: 'test-user',
 		date,
 		activity: 'learn',
 		durationMinutes: 30,

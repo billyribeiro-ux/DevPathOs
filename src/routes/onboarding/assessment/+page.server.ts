@@ -1,4 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { dev } from '$app/environment';
 import { assessmentSchema } from '$lib/schemas/onboarding';
 import { users, roadmapStates } from '$lib/server/collections';
 import type { Actions, PageServerLoad } from './$types';
@@ -70,8 +71,9 @@ export const actions: Actions = {
 		cookies.set('devpath_user_id', profile.id, {
 			path: '/',
 			httpOnly: true,
+			secure: !dev,
 			sameSite: 'lax',
-			maxAge: 60 * 60 * 24 * 365 // 1 year
+			maxAge: 60 * 60 * 24 * 365
 		});
 
 		redirect(303, '/');

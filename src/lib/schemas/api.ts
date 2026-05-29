@@ -31,6 +31,13 @@ export const projectSchema = z.object({
 	conceptSlugs: z.array(z.string()).default([])
 });
 
+export const projectUpdateSchema = z.object({
+	name: z.string().min(1).max(200),
+	description: z.string().max(5000),
+	status: z.enum(['planning', 'active', 'completed', 'abandoned']),
+	completedAt: z.string().datetime().transform(s => new Date(s)).optional()
+}).partial();
+
 export const mistakeSchema = z.object({
 	category: z.enum(['syntax', 'logic', 'type-error', 'async', 'state-management', 'css', 'other']),
 	description: z.string().min(1, 'Description is required').max(5000),

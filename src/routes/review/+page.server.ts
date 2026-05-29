@@ -6,7 +6,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	const uid = locals.user.id;
 	const [reviews, logs, progress, allMistakes, allCards] = await Promise.all([
-		weeklyReviews.readAll(),
+		weeklyReviews.findBy(r => (r as { userId?: string }).userId === uid),
 		studyLogs.findBy(l => l.userId === uid),
 		conceptProgress.findBy(p => p.userId === uid),
 		mistakes.findBy(m => m.userId === uid),

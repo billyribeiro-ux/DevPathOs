@@ -30,6 +30,7 @@ export interface Flashcard {
   difficulty: number;
   elapsedDays: number;
   scheduledDays: number;
+  learningSteps: number;
   reps: number;
   lapses: number;
   state: 'new' | 'learning' | 'review' | 'relearning';

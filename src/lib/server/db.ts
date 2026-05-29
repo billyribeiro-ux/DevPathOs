@@ -19,6 +19,7 @@ function withLock(path: string, fn: () => Promise<void>): Promise<void> {
 	const prev = locks.get(path) ?? Promise.resolve();
 	const next = prev.then(fn, fn);
 	locks.set(path, next);
+	next.finally(() => { if (locks.get(path) === next) locks.delete(path); });
 	return next;
 }
 
@@ -26,6 +27,9 @@ export class JsonStore<T extends { id: string }> {
 	private filePath: string;
 
 	constructor(filename: string) {
+		if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+			throw new Error('Invalid store filename');
+		}
 		this.filePath = join(DATA_DIR, filename);
 	}
 
