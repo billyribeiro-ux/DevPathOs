@@ -12,12 +12,12 @@ export function getTrack(slug: string): TrackMeta | undefined {
 export function getConceptsForTrack(trackSlug: string): ConceptMeta[] {
 	const track = getTrack(trackSlug);
 	if (!track) return [];
-	const allSlugs = [
+	const slugSet = new Set([
 		...track.layers.foundation,
 		...track.layers.framework,
 		...track.layers.professional
-	];
-	return allConcepts.filter(c => allSlugs.includes(c.slug));
+	]);
+	return allConcepts.filter(c => slugSet.has(c.slug));
 }
 
 export function getConcept(slug: string): ConceptMeta | undefined {

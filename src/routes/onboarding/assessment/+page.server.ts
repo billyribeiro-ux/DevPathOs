@@ -5,6 +5,7 @@ import { users, roadmapStates } from '$lib/server/collections';
 import type { Actions, PageServerLoad } from './$types';
 import type { UserPreferences } from '$lib/types/user';
 import { getConceptsForTrack } from '$lib/content/tracks';
+import { signUserId } from '$lib/server/cookie';
 
 export const load: PageServerLoad = async ({ url }) => {
 	const role = url.searchParams.get('role') ?? 'frontend';
@@ -55,7 +56,6 @@ export const actions: Actions = {
 
 		await users.create(profile);
 
-		// Initialize roadmap state for the new user
 		const trackSlug = 'frontend';
 		const concepts = getConceptsForTrack(trackSlug);
 		const firstConcepts = concepts.filter(c => c.prerequisites.length === 0).map(c => c.slug);
@@ -68,7 +68,7 @@ export const actions: Actions = {
 			currentFocus: firstConcepts[0] ?? null
 		});
 
-		cookies.set('devpath_user_id', profile.id, {
+		cookies.set('devpath_user_id', signUserId(profile.id), {
 			path: '/',
 			httpOnly: true,
 			secure: !dev,

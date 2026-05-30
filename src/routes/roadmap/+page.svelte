@@ -110,6 +110,11 @@
   </div>
 
   <!-- Concept list -->
+  {#if filteredConcepts.length === 0}
+    <div class="rounded-xl border border-dashed border-border p-12 text-center">
+      <p class="text-muted-foreground">No concepts in this layer yet.</p>
+    </div>
+  {/if}
   <div class="space-y-2">
     {#each filteredConcepts as concept (concept.slug)}
       {@const StatusIcon = getStatusIcon(concept.progress?.status)}

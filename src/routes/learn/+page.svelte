@@ -22,7 +22,7 @@
   const concepts = $derived(data.concepts as ConceptWithProgress[]);
 
   const inProgressConcepts = $derived(concepts.filter(c => c.progress?.status === 'in-progress'));
-  const availableConcepts = $derived(concepts.filter(c => !c.progress || c.progress.status === 'available' || c.progress.status === 'locked'));
+  const availableConcepts = $derived(concepts.filter(c => !c.progress || c.progress.status === 'available'));
 
   const nextUp = $derived(
     availableConcepts.find(c => {

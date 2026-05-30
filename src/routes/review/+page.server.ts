@@ -36,7 +36,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 			conceptsTouched: uniqueConcepts.length,
 			mistakeCount: thisWeekMistakes.length,
 			flashcardsTotal: allCards.length,
-			flashcardsReviewed: allCards.filter(c => c.reps > 0).length,
+			flashcardsReviewed: allCards.filter(c => c.lastReviewDate && new Date(c.lastReviewDate) >= weekStart).length,
 			conceptsLearned: progress.filter(p => p.status === 'learned' || p.status === 'mastered').length,
 			dailyMinutes
 		}

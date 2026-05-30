@@ -21,7 +21,9 @@
   function confirmDelete(fn: () => Promise<void>) { pendingDeleteFn = fn; confirmOpen = true; }
   async function executeDelete() { if (pendingDeleteFn) await pendingDeleteFn(); pendingDeleteFn = null; }
 
-  const filtered = $derived(filterStatus === 'all' ? projectsList : projectsList.filter(p => p.status === filterStatus));
+  const statusOrder: Record<ProjectStatus, number> = { active: 0, planning: 1, completed: 2, abandoned: 3 };
+  const sorted = $derived([...projectsList].sort((a, b) => statusOrder[a.status] - statusOrder[b.status] || new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()));
+  const filtered = $derived(filterStatus === 'all' ? sorted : sorted.filter(p => p.status === filterStatus));
   const statusConfig: Record<ProjectStatus, { label: string; color: string; icon: typeof Clock }> = {
     planning: { label: 'Planning', color: 'bg-blue-500/10 text-blue-500', icon: Clock },
     active: { label: 'Active', color: 'bg-green-500/10 text-green-500', icon: CheckCircle },

@@ -4,8 +4,10 @@
   import { type Role, ROLE_LABELS, ROLE_GOALS } from '$lib/types/user';
   import { ArrowLeft, ArrowRight, Check } from 'phosphor-svelte';
 
-  const role = $derived(($page.url.searchParams.get('role') ?? 'frontend') as Role);
-  const availableGoals = $derived(ROLE_GOALS[role] ?? []);
+  const validRoles: Role[] = ['frontend', 'svelte-specialist', 'fullstack', 'freelancer', 'career-switcher', 'designer-coder'];
+  const rawRole = $derived($page.url.searchParams.get('role') ?? 'frontend');
+  const role = $derived(validRoles.includes(rawRole as Role) ? (rawRole as Role) : 'frontend');
+  const availableGoals = $derived(ROLE_GOALS[role]);
 
   let name = $state('');
   let selectedGoals = $state<string[]>([]);

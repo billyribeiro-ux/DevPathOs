@@ -1,65 +1,48 @@
 <script lang="ts">
-  import { Briefcase, Star, TrendUp, Buildings, Certificate, Target } from 'phosphor-svelte';
+  import { Briefcase, Star, TrendUp, Buildings, Certificate, Target, ArrowRight } from 'phosphor-svelte';
   import { page } from '$app/stores';
   import { getConceptsForTrack } from '$lib/content/tracks';
+  import type { ConceptMeta } from '$lib/types/roadmap';
 
   let { data } = $props();
 
   const user = $derived($page.data.user);
 
-  const concepts = getConceptsForTrack('frontend');
+  const concepts = $derived(getConceptsForTrack('frontend'));
 
-  const relevanceData = [
-    {
-      skill: 'HTML/CSS Fundamentals',
-      concepts: ['html-semantics', 'css-box-model', 'css-flexbox', 'css-grid', 'css-responsive'],
-      importance: 'essential' as const,
-      companies: ['Every tech company', 'Agencies', 'Startups'],
-      description: 'Required for any front-end role. Non-negotiable.'
-    },
-    {
-      skill: 'JavaScript Mastery',
-      concepts: ['js-fundamentals', 'js-dom', 'js-events', 'js-async', 'js-modules'],
-      importance: 'essential' as const,
-      companies: ['FAANG', 'Startups', 'Enterprise'],
-      description: 'Core interview topic. 90% of technical interviews test JS fundamentals.'
-    },
-    {
-      skill: 'Svelte/SvelteKit',
-      concepts: ['svelte-basics', 'svelte-runes', 'svelte-components', 'svelte-stores', 'sveltekit-routing', 'sveltekit-load', 'sveltekit-forms', 'sveltekit-hooks'],
-      importance: 'important' as const,
-      companies: ['Apple', 'The New York Times', 'Ikea', 'Spotify', 'Growing startups'],
-      description: 'Rapidly growing. Companies adopting Svelte value developers who know it deeply.'
-    },
-    {
-      skill: 'Tailwind CSS',
-      concepts: ['tailwind-basics', 'tailwind-responsive'],
-      importance: 'important' as const,
-      companies: ['Most startups', 'SaaS companies', 'Agencies'],
-      description: 'Industry standard for utility-first CSS. Shows in most modern job listings.'
-    },
-    {
-      skill: 'Testing & CI/CD',
-      concepts: ['testing-basics', 'ci-cd'],
-      importance: 'important' as const,
-      companies: ['Enterprise', 'Scale-ups', 'Any serious team'],
-      description: 'Separates junior from mid-level. Shows engineering maturity.'
-    },
-    {
-      skill: 'TypeScript',
-      concepts: ['typescript-basics'],
-      importance: 'essential' as const,
-      companies: ['Microsoft', 'Google', 'Most modern companies'],
-      description: '80%+ of new projects use TypeScript. Essential for senior roles.'
-    },
-    {
-      skill: 'Accessibility & Performance',
-      concepts: ['a11y-fundamentals', 'perf-optimization'],
-      importance: 'nice-to-have' as const,
-      companies: ['Government', 'Healthcare', 'Finance', 'Large enterprises'],
-      description: 'Differentiator for senior roles. Legal requirement in many industries.'
+  const skillGroups = $derived.by(() => {
+    const groups: { skill: string; concepts: ConceptMeta[]; importance: 'essential' | 'important' | 'nice-to-have'; companies: string[]; description: string }[] = [];
+
+    const byTag = new Map<string, ConceptMeta[]>();
+    for (const c of concepts) {
+      for (const tag of c.tags) {
+        if (!byTag.has(tag)) byTag.set(tag, []);
+        byTag.get(tag)!.push(c);
+      }
     }
-  ];
+
+    const foundation = concepts.filter(c => c.layer === 'foundation');
+    const framework = concepts.filter(c => c.layer === 'framework');
+    const professional = concepts.filter(c => c.layer === 'professional');
+
+    const htmlCss = foundation.filter(c => c.slug.startsWith('html') || c.slug.startsWith('css'));
+    const js = foundation.filter(c => c.slug.startsWith('js'));
+    const svelte = framework.filter(c => c.slug.startsWith('svelte') || c.slug.startsWith('sveltekit'));
+    const tailwind = framework.filter(c => c.slug.includes('tailwind'));
+    const ts = framework.filter(c => c.slug.includes('typescript'));
+    const testing = professional.filter(c => c.slug.includes('testing') || c.slug.includes('ci'));
+    const a11yPerf = professional.filter(c => c.slug.includes('a11y') || c.slug.includes('perf'));
+
+    if (htmlCss.length) groups.push({ skill: 'HTML/CSS Fundamentals', concepts: htmlCss, importance: 'essential', companies: ['Every tech company', 'Agencies', 'Startups'], description: 'Required for any front-end role. Non-negotiable.' });
+    if (js.length) groups.push({ skill: 'JavaScript Mastery', concepts: js, importance: 'essential', companies: ['FAANG', 'Startups', 'Enterprise'], description: 'Core interview topic. 90% of technical interviews test JS fundamentals.' });
+    if (svelte.length) groups.push({ skill: 'Svelte/SvelteKit', concepts: svelte, importance: 'important', companies: ['Apple', 'The New York Times', 'Ikea', 'Spotify'], description: 'Rapidly growing. Companies adopting Svelte value developers who know it deeply.' });
+    if (tailwind.length) groups.push({ skill: 'Tailwind CSS', concepts: tailwind, importance: 'important', companies: ['Most startups', 'SaaS companies', 'Agencies'], description: 'Industry standard for utility-first CSS. Shows in most modern job listings.' });
+    if (ts.length) groups.push({ skill: 'TypeScript', concepts: ts, importance: 'essential', companies: ['Microsoft', 'Google', 'Most modern companies'], description: '80%+ of new projects use TypeScript. Essential for senior roles.' });
+    if (testing.length) groups.push({ skill: 'Testing & CI/CD', concepts: testing, importance: 'important', companies: ['Enterprise', 'Scale-ups', 'Any serious team'], description: 'Separates junior from mid-level. Shows engineering maturity.' });
+    if (a11yPerf.length) groups.push({ skill: 'Accessibility & Performance', concepts: a11yPerf, importance: 'nice-to-have', companies: ['Government', 'Healthcare', 'Finance'], description: 'Differentiator for senior roles. Legal requirement in many industries.' });
+
+    return groups;
+  });
 
   const importanceColors = {
     essential: 'bg-red-500/10 text-red-500',
@@ -70,19 +53,21 @@
   const progress = $derived(data.progress ?? []);
 
   const readinessPercent = $derived.by(() => {
-    const allSlugs = relevanceData.flatMap(s => s.concepts);
-    const learned = allSlugs.filter(slug => {
+    const allSlugs = skillGroups.flatMap(s => s.concepts.map(c => c.slug));
+    const unique = [...new Set(allSlugs)];
+    const learned = unique.filter(slug => {
       const p = progress.find((pr: { conceptSlug: string }) => pr.conceptSlug === slug);
       return p && (p.status === 'learned' || p.status === 'mastered');
     }).length;
-    return allSlugs.length > 0 ? Math.round((learned / allSlugs.length) * 100) : 0;
+    return unique.length > 0 ? Math.round((learned / unique.length) * 100) : 0;
   });
 
   const circumference = 2 * Math.PI * 45;
 
-  function getSkillProgress(conceptSlugs: string[]) {
-    const total = conceptSlugs.length;
-    const learned = conceptSlugs.filter(slug => {
+  function getSkillProgress(conceptList: ConceptMeta[]) {
+    const slugs = conceptList.map(c => c.slug);
+    const total = slugs.length;
+    const learned = slugs.filter(slug => {
       const p = progress.find((pr: { conceptSlug: string }) => pr.conceptSlug === slug);
       return p && (p.status === 'learned' || p.status === 'mastered');
     }).length;
@@ -101,7 +86,6 @@
     </div>
   </div>
 
-  <!-- Overall readiness -->
   <div class="rounded-xl border border-border bg-card p-6">
     <h2 class="text-lg font-semibold text-foreground mb-3">Job Readiness Score</h2>
     <div class="flex items-center gap-4">
@@ -126,9 +110,8 @@
     </div>
   </div>
 
-  <!-- Skills breakdown -->
   <div class="space-y-4">
-    {#each relevanceData as skill}
+    {#each skillGroups as skill (skill.skill)}
       {@const prog = getSkillProgress(skill.concepts)}
       <div class="rounded-xl border border-border bg-card p-5">
         <div class="flex items-start justify-between mb-2">
@@ -148,17 +131,19 @@
           <div class="h-full rounded-full bg-primary transition-all" style="width: {prog.percent}%"></div>
         </div>
 
-        <div class="flex items-center gap-2 text-xs text-muted-foreground">
-          <Buildings size={12} />
-          {#each skill.companies as company, i}
-            <span>{company}{i < skill.companies.length - 1 ? ',' : ''}</span>
-          {/each}
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2 text-xs text-muted-foreground">
+            <Buildings size={12} />
+            {#each skill.companies as company, i}
+              <span>{company}{i < skill.companies.length - 1 ? ',' : ''}</span>
+            {/each}
+          </div>
+          <span class="text-xs text-muted-foreground">{prog.learned}/{prog.total} concepts</span>
         </div>
       </div>
     {/each}
   </div>
 
-  <!-- Portfolio proof tips -->
   <div class="rounded-xl border border-border bg-card p-6">
     <div class="flex items-center gap-2 mb-4">
       <Certificate size={20} class="text-primary" />

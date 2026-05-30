@@ -63,14 +63,18 @@
     sending = true;
     const userMsg = input;
     input = '';
+    const optimistic = { id: `temp-${Date.now()}`, sessionId: activeSessionId, role: 'user' as const, content: userMsg, createdAt: new Date() };
+    messages = [...messages, optimistic];
+    await scrollToBottom();
     try {
       const res = await fetch(`/api/mentor/sessions/${activeSessionId}/messages`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: userMsg }) });
       if (!res.ok) throw new Error('Failed to send');
       const newMessages = await res.json();
-      messages = [...messages, ...newMessages];
+      messages = [...messages.filter(m => m.id !== optimistic.id), ...newMessages];
       await scrollToBottom();
-    } catch (e) {
+    } catch {
       toastState.error('Failed to send message');
+      messages = messages.filter(m => m.id !== optimistic.id);
       input = userMsg;
     }
     sending = false;

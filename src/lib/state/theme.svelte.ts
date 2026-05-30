@@ -2,11 +2,11 @@ export type Theme = 'light' | 'dark' | 'system';
 
 class ThemeState {
   current = $state<Theme>('system');
+  private systemDark = $state(false);
 
   resolved = $derived.by<'light' | 'dark'>(() => {
     if (this.current === 'system') {
-      if (typeof window === 'undefined') return 'light';
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      return this.systemDark ? 'dark' : 'light';
     }
     return this.current;
   });
@@ -14,6 +14,16 @@ class ThemeState {
   init() {
     const saved = localStorage.getItem('devpath-theme') as Theme | null;
     if (saved) this.current = saved;
+
+    if (typeof window !== 'undefined') {
+      const mq = window.matchMedia('(prefers-color-scheme: dark)');
+      this.systemDark = mq.matches;
+      mq.addEventListener('change', (e) => {
+        this.systemDark = e.matches;
+        if (this.current === 'system') this.apply();
+      });
+    }
+
     this.apply();
   }
 

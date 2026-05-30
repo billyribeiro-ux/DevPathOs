@@ -183,10 +183,14 @@
   }
 
   async function copyCode(code: string, id: string) {
-    await navigator.clipboard.writeText(code);
-    copiedId = id;
-    toastState.success('Copied to clipboard');
-    setTimeout(() => { copiedId = null; }, 2000);
+    try {
+      await navigator.clipboard.writeText(code);
+      copiedId = id;
+      toastState.success('Copied to clipboard');
+      setTimeout(() => { copiedId = null; }, 2000);
+    } catch {
+      toastState.error('Clipboard access denied');
+    }
   }
 
   const tabs = $derived([
@@ -277,7 +281,7 @@
                 <button onclick={() => confirmDelete(() => doDeleteNote(note.id))} class="rounded p-1 text-muted-foreground hover:bg-red-500/10 hover:text-red-500" aria-label="Delete note"><Trash size={14} /></button>
               </div>
             </div>
-            <p class="text-sm text-muted-foreground line-clamp-3 mb-3">{note.content}</p>
+            <div class="text-sm text-muted-foreground line-clamp-3 mb-3 prose prose-sm dark:prose-invert max-w-none">{note.content}</div>
             {#if note.tags.length > 0}
               <div class="flex flex-wrap gap-1">
                 {#each note.tags as tag}<span class="rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{tag}</span>{/each}
