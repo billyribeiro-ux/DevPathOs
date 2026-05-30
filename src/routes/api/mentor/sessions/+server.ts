@@ -10,9 +10,11 @@ export const GET: RequestHandler = async ({ locals }) => {
 
 export const POST: RequestHandler = async ({ locals, request }) => {
 	if (!locals.user) error(401, 'Unauthorized');
-	const { mode } = await request.json().catch(() => ({ mode: 'coach' }));
+	const raw = await request.json().catch(() => null);
+	if (!raw) error(400, 'Invalid JSON');
 	const validModes = ['coach', 'teacher', 'debugger', 'interviewer', 'reflection'];
-	if (!validModes.includes(mode)) error(400, 'Invalid mode');
+	if (!raw.mode || !validModes.includes(raw.mode)) error(400, 'Invalid mode');
+	const mode = raw.mode;
 
 	const session = await chatSessions.create({
 		id: crypto.randomUUID(),

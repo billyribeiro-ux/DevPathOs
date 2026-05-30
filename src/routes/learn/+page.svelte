@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Book, Play, Timer, CheckCircle, Clock, ArrowRight } from 'phosphor-svelte';
   import type { ConceptMeta, ConceptProgress, LearningLayer } from '$lib/types/roadmap';
+  import { toastState } from '$lib/state/toast.svelte';
 
   let { data } = $props();
 
@@ -11,6 +12,12 @@
   let timerInterval = $state<ReturnType<typeof setInterval> | null>(null);
   let activeConceptSlug = $state<string | null>(null);
   let activeLayer = $state<LearningLayer>('learn');
+
+  $effect(() => {
+    return () => {
+      if (timerInterval) clearInterval(timerInterval);
+    };
+  });
 
   const concepts = $derived(data.concepts as ConceptWithProgress[]);
 
@@ -39,15 +46,22 @@
     timerRunning = false;
     if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
     if (activeConceptSlug && studyTimer > 0) {
-      await fetch('/api/study-logs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          conceptSlug: activeConceptSlug,
-          activity: activeLayer,
-          durationMinutes: Math.round(studyTimer / 60)
-        })
-      });
+      try {
+        const res = await fetch('/api/study-logs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            conceptSlug: activeConceptSlug,
+            activity: activeLayer,
+            durationMinutes: Math.max(1, Math.round(studyTimer / 60))
+          })
+        });
+        if (res.ok) {
+          toastState.success(`Logged ${Math.max(1, Math.round(studyTimer / 60))}m of study`);
+        } else {
+          toastState.error('Failed to log study time');
+        }
+      } catch { toastState.error('Failed to log study time'); }
     }
     activeConceptSlug = null;
     studyTimer = 0;

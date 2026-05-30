@@ -19,9 +19,11 @@
 	</head>
 	<body data-sveltekit-preload-data="hover">
 		<script>
-			const t = localStorage.getItem('devpath-theme');
-			if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme:dark)').matches))
-				document.documentElement.classList.add('dark');
+			try {
+				const t = localStorage.getItem('devpath-theme');
+				if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme:dark)').matches))
+					document.documentElement.classList.add('dark');
+			} catch {}
 		</script>
 		<div style="display: contents">%sveltekit.body%</div>
 	</body>

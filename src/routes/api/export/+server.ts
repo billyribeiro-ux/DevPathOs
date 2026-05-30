@@ -21,7 +21,7 @@ export const GET: RequestHandler = async ({ locals }) => {
 		chatSessions.findBy(s => s.userId === uid),
 		learningSessions.findBy(s => s.userId === uid),
 		roadmapStates.findBy(s => s.userId === uid),
-		weeklyReviews.findBy(r => (r as { userId?: string }).userId === uid)
+		weeklyReviews.findBy(r => r.userId === uid)
 	]);
 
 	const sessionIds = new Set(sessions.map(s => s.id));

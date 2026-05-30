@@ -81,6 +81,7 @@
   const newCards = $derived(cardsList.filter(c => c.state === 'new'));
 
   async function saveNote() {
+    if (savingNote) return;
     savingNote = true;
     try {
       const body = { title: noteTitle, content: noteContent, tags: noteTags.split(',').map(t => t.trim()).filter(Boolean) };
@@ -118,6 +119,7 @@
   function resetNoteForm() { showNoteForm = false; editingNote = null; noteTitle = ''; noteContent = ''; noteTags = ''; }
 
   async function saveCard() {
+    if (savingCard) return;
     savingCard = true;
     try {
       const res = await fetch('/api/flashcards', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ front: cardFront, back: cardBack, tags: cardTags.split(',').map(t => t.trim()).filter(Boolean) }) });
@@ -158,6 +160,7 @@
   }
 
   async function saveSnippet() {
+    if (savingSnippet) return;
     savingSnippet = true;
     try {
       const res = await fetch('/api/snippets', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: snippetTitle, code: snippetCode, language: snippetLang, tags: snippetTags.split(',').map(t => t.trim()).filter(Boolean) }) });

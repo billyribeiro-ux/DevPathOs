@@ -1,5 +1,6 @@
 export interface WeeklyReview {
   id: string;
+  userId: string;
   weekStart: Date;
   weekEnd: Date;
   totalStudyMinutes: number;

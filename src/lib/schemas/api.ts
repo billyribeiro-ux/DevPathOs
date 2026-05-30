@@ -51,7 +51,7 @@ export const studyLogSchema = z.object({
 	date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 	conceptSlug: z.string().optional(),
 	activity: z.enum(['learn', 'try', 'build', 'explain', 'reuse', 'flashcard', 'note', 'project']),
-	durationMinutes: z.number().int().min(0).max(1440)
+	durationMinutes: z.number().int().min(1).max(1440)
 });
 
 export const reviewRatingSchema = z.object({

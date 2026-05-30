@@ -14,6 +14,7 @@ export interface Mistake {
 
 export interface MistakePattern {
   id: string;
+  userId: string;
   category: MistakeCategory;
   description: string;
   frequency: number;

@@ -16,6 +16,12 @@
   let activeLayer = $state<LearningLayer>('learn');
   let showConfetti = $state(false);
 
+  $effect(() => {
+    return () => {
+      if (timerInterval) clearInterval(timerInterval);
+    };
+  });
+
   const layers: { id: LearningLayer; label: string; description: string; icon: typeof BookOpen }[] = [
     { id: 'learn', label: 'Learn', description: 'Read, watch, or listen to understand the concept', icon: BookOpen },
     { id: 'try', label: 'Try', description: 'Experiment hands-on in a sandbox or small exercise', icon: Play },

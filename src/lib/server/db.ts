@@ -1,10 +1,10 @@
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, rename } from 'node:fs/promises';
 import { join } from 'node:path';
 import { env } from '$env/dynamic/private';
 
 const DATA_DIR = env.DATA_DIR || join(process.cwd(), 'data');
 
-const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 
 function dateReviver(_key: string, value: unknown): unknown {
 	if (typeof value === 'string' && ISO_DATE_RE.test(value)) {
@@ -13,7 +13,6 @@ function dateReviver(_key: string, value: unknown): unknown {
 	return value;
 }
 
-// Simple mutex per file path
 const locks = new Map<string, Promise<void>>();
 function withLock(path: string, fn: () => Promise<void>): Promise<void> {
 	const prev = locks.get(path) ?? Promise.resolve();
@@ -51,7 +50,9 @@ export class JsonStore<T extends { id: string }> {
 
 	private async writeRaw(items: T[]): Promise<void> {
 		await this.ensureDir();
-		await writeFile(this.filePath, JSON.stringify(items, null, 2), 'utf-8');
+		const tmpPath = this.filePath + '.tmp';
+		await writeFile(tmpPath, JSON.stringify(items, null, 2), 'utf-8');
+		await rename(tmpPath, this.filePath);
 	}
 
 	async readAll(): Promise<T[]> {
@@ -120,6 +121,19 @@ export class JsonStore<T extends { id: string }> {
 			}
 		});
 		return deleted;
+	}
+
+	async deleteBy(predicate: (item: T) => boolean): Promise<number> {
+		let count = 0;
+		await withLock(this.filePath, async () => {
+			const items = await this.readRaw();
+			const filtered = items.filter((item) => {
+				if (predicate(item)) { count++; return false; }
+				return true;
+			});
+			if (count > 0) await this.writeRaw(filtered);
+		});
+		return count;
 	}
 
 	async count(): Promise<number> {

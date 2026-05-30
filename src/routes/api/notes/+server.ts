@@ -15,7 +15,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	if (!raw) error(400, 'Invalid JSON');
 
 	const parsed = noteSchema.safeParse(raw);
-	if (!parsed.success) error(400, parsed.error.flatten().fieldErrors.toString());
+	if (!parsed.success) error(400, 'Invalid note data');
 
 	const note = await notes.create({
 		id: crypto.randomUUID(),

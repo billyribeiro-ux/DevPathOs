@@ -15,7 +15,6 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
 	if (!session || session.userId !== locals.user.id) error(404, 'Session not found');
 
 	await chatSessions.delete(params.id);
-	const msgs = await chatMessages.findBy(m => m.sessionId === params.id);
-	for (const msg of msgs) await chatMessages.delete(msg.id);
+	await chatMessages.deleteBy(m => m.sessionId === params.id);
 	return new Response(null, { status: 204 });
 };

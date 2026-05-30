@@ -14,7 +14,10 @@
         color: colors[Math.floor(Math.random() * colors.length)],
         delay: Math.random() * 0.5
       }));
-      setTimeout(() => { particles = []; }, 3000);
+      const timer = setTimeout(() => { particles = []; }, 3000);
+      return () => clearTimeout(timer);
+    } else {
+      particles = [];
     }
   });
 </script>
@@ -38,5 +41,12 @@
   }
   .animate-confetti {
     animation: confetti 2.5s ease-out forwards;
+    will-change: transform, top, opacity;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-confetti {
+      animation: none;
+      opacity: 0;
+    }
   }
 </style>
